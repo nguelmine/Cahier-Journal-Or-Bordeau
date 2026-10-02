@@ -3,373 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cahier Journal Numérique - FLE</title>
+    <title>Cahier Journal Complet - M. Guelmine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sidebar-bg: #1e293b;
-            --sidebar-text: #f8fafc;
-            --main-bg: #e2e8f0;
-            --paper-bg: #ffffff;
-            --primary: #2563eb;
-            --success: #16a34a;
-            --danger: #dc2626;
-            --warning: #ea580c;
-            --border: #cbd5e1;
+            /* Palette Bordeaux & Or */
+            --ink: #2a1619; --v900: #42151e; --v800: #591b28; --v700: #732233; --v600: #8c293e; 
+            --v50: #fcf4f5; --v100: #f6e1e6; --v200: #eecad3; --v300: #d99aa9;
+            --gold: #d4af37; --gold-soft: #ebd69b; --line: #e6d3d6; --paper: #fffffb;
+            --display: "Cormorant Garamond", serif; --body: "Manrope", sans-serif;
         }
+
+        body { margin: 0; font-family: var(--body); color: var(--ink); background: radial-gradient(1200px 600px at 50% -10%, #591b28 0%, transparent 60%), #1a060a; padding-bottom: 40px; }
         
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            display: flex;
-            height: 100vh;
-            background-color: var(--main-bg);
-            color: #333;
-        }
+        /* --- ÉCRAN DE CONNEXION --- */
+        #login-screen { position: fixed; inset: 0; background: #1a060a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-card { background: #fff; border: 2px solid var(--gold); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        .login-card h2 { font-family: var(--display); color: var(--v900); font-size: 32px; margin-bottom: 5px; }
+        .login-card input { width: 90%; padding: 12px; margin: 20px 0; font-size: 16px; border: 2px solid var(--line); border-radius: 8px; text-align: center; }
+        .login-card button { width: 100%; padding: 15px; font-size: 16px; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--v800), var(--v600)); border: none; border-radius: 8px; cursor: pointer; }
+        #login-error { color: #d93838; margin-top: 15px; display: none; }
 
-        /* --- Panneau de contrôle (Menu Latéral) --- */
-        .sidebar {
-            width: 320px;
-            background-color: var(--sidebar-bg);
-            color: var(--sidebar-text);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.15);
-            z-index: 10;
-            overflow-y: auto;
-        }
+        /* --- INTERFACE PRINCIPALE --- */
+        #app-content { display: none; }
+        
+        /* Toolbar (Navigation) */
+        .toolbar { max-width: 210mm; margin: 0 auto 20px; padding: 15px; background: rgba(255,255,255,0.95); border-radius: 0 0 12px 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .toolbar-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--v100); padding-bottom: 10px; margin-bottom: 10px; }
+        .toolbar-top h1 { font-family: var(--display); font-size: 1.2rem; color: var(--v800); margin: 0; }
+        .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: var(--v100); color: var(--v900); transition: 0.2s; font-family: var(--body); }
+        .btn:hover { background: var(--v200); }
+        .btn-print { background: var(--gold); color: var(--v900); }
+        .btn-print:hover { background: #c69f2e; }
+        
+        /* Tabs */
+        .tabs { display: flex; flex-wrap: wrap; gap: 5px; }
+        .tab { padding: 8px 12px; border: none; background: transparent; color: var(--v600); cursor: pointer; font-weight: 600; border-radius: 6px; font-size: 0.85rem; }
+        .tab.active { background: var(--v800); color: white; }
+        .tab:hover:not(.active) { background: var(--v50); }
 
-        .sidebar h2 {
-            font-size: 1.2rem;
-            margin-top: 0;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
-            color: #94a3b8;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .form-group label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #cbd5e1;
-        }
-
-        .form-group input, .form-group select {
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #475569;
-            background: #0f172a;
-            color: white;
-            font-family: inherit;
-        }
-
-        .btn {
-            padding: 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            color: white;
-            transition: opacity 0.2s;
-            text-align: center;
-            font-size: 1rem;
-        }
-
-        .btn:hover { opacity: 0.9; }
-        .btn-add { background-color: var(--success); margin-top: 10px; }
-        .btn-print { background-color: var(--warning); margin-top: 20px; }
-        .btn-clear { background-color: var(--danger); margin-top: auto; }
-
-        /* --- Zone d'aperçu (Feuille A4) --- */
-        .main-content {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-        }
-
-        .a4-sheet {
-            width: 297mm;
-            min-height: 210mm;
-            background-color: var(--paper-bg);
-            padding: 20mm;
-            box-sizing: border-box;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            color: #000;
-        }
-
-        .header-officiel {
-            text-align: center;
-            margin-bottom: 25px;
-            font-family: 'Times New Roman', Times, serif;
-            line-height: 1.4;
-        }
-
-        .header-officiel h3 { margin: 0; font-size: 14pt; }
-        .header-officiel p { margin: 0; font-size: 12pt; }
-        .header-officiel h2 { margin: 15px 0 0; font-size: 18pt; text-decoration: underline; }
-
-        .info-box {
-            border: 2px solid #000;
-            padding: 12px 20px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            font-weight: bold;
-            font-size: 11pt;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        th, td {
-            border: 1px solid #000;
-            padding: 8px;
-            vertical-align: top;
-            font-size: 11pt;
-            word-wrap: break-word;
-        }
-
-        th {
-            background-color: #f1f5f9;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        /* Largeurs de colonnes respectées */
-        th:nth-child(1) { width: 10%; text-align: left; }
-        th:nth-child(2) { width: 15%; }
-        th:nth-child(3) { width: 20%; }
-        th:nth-child(4) { width: 35%; }
-        th:nth-child(5) { width: 15%; }
-        th:nth-child(6) { width: 5%; text-align: center; }
-
-        [contenteditable="true"] {
-            outline: none;
-            min-height: 25px;
-            display: block;
-        }
-
-        [contenteditable="true"]:hover, [contenteditable="true"]:focus {
-            background-color: #fef08a;
-        }
-
-        .delete-btn {
-            color: red;
-            cursor: pointer;
-            text-align: center;
-            font-weight: bold;
-            display: block;
-        }
-
-        /* --- Mode Impression --- */
+        /* --- FEUILLE A4 --- */
+        .sheet { width: 210mm; min-height: 297mm; padding: 15mm; margin: 0 auto 20px; background: var(--paper); border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; box-sizing: border-box; }
+        .sheet.hidden { display: none; }
+        .sheet::before { content: ""; position: absolute; inset: 5mm; border: 1px solid var(--v100); border-radius: 8px; pointer-events: none; }
+        .sheet::after { content: ""; position: absolute; left: 5mm; top: 5mm; width: 26mm; height: 1.6mm; background: linear-gradient(90deg, var(--v700), var(--v300)); border-radius: 2px; }
+        
+        .head { text-align: center; margin-bottom: 8mm; }
+        .head__eyebrow { font-size: 8pt; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--v400); margin: 0; }
+        .head h2 { font-family: var(--display); font-size: 24pt; font-weight: 700; color: var(--v900); margin: 5px 0 0 0; }
+        
+        /* Elements de formulaire et tableaux */
+        input.line, textarea.area { width: 100%; border: none; border-bottom: 1px dashed var(--v300); background: transparent; font-family: var(--body); color: var(--v900); font-size: 11pt; padding: 3px 0; outline: none; }
+        input.line:focus, textarea.area:focus { border-bottom: 1px solid var(--v700); background: var(--v50); }
+        textarea.area { resize: none; min-height: 25px; overflow: hidden; line-height: 1.5; border-bottom: none; border: 1px solid transparent; }
+        textarea.area:focus { border: 1px solid var(--v200); border-radius: 4px; }
+        
+        table.tbl { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        table.tbl th, table.tbl td { border: 1px solid var(--line); padding: 8px; font-size: 10pt; vertical-align: middle; }
+        table.tbl th { background: linear-gradient(135deg, var(--v800), var(--v600)); color: white; font-family: var(--display); font-size: 12pt; text-align: center; }
+        
+        /* Page de garde spécifique */
+        .cover-content { text-align: center; margin-top: 40mm; }
+        .cover-content h1 { font-family: var(--display); font-size: 50pt; color: var(--v900); border-bottom: 2px solid var(--gold); display: inline-block; padding-bottom: 10px; margin-bottom: 10mm; }
+        .cover-info { font-size: 16pt; color: var(--v800); margin: 10px 0; font-weight: bold; }
+        
+        /* Impression */
         @media print {
-            @page { size: A4 landscape; margin: 0; }
-            body { background-color: white; height: auto; display: block; }
-            .sidebar { display: none !important; }
-            .main-content { padding: 0; display: block; overflow: visible; }
-            .a4-sheet { 
-                width: 100%; 
-                min-height: 100%; 
-                padding: 15mm; 
-                box-shadow: none; 
-            }
-            .delete-col, .delete-btn { display: none !important; }
-            [contenteditable="true"]:hover, [contenteditable="true"]:focus { 
-                background-color: transparent !important; 
-            }
-            th:nth-child(6), td:nth-child(6) { display: none !important; }
+            @page { size: A4 portrait; margin: 0; }
+            body { background: white; padding: 0; }
+            #login-screen, .toolbar, .no-print { display: none !important; }
+            .sheet { margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; page-break-after: always; }
+            .sheet.hidden { display: block !important; /* Imprimer tout le cahier si on veut, ou gérer via JS */ }
+            input.line, textarea.area { border: none !important; background: transparent !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Panneau de contrôle -->
-    <div class="sidebar">
-        <h2>Paramètres de la séance</h2>
-        
-        <div class="form-group">
-            <label>Date :</label>
-            <input type="date" id="date-picker">
-        </div>
-        
-        <div class="form-group">
-            <label>Horaire :</label>
-            <input type="text" id="horaire-input" placeholder="ex: 08h00 - 09h00" value="08h00 - 09h00">
-        </div>
-        
-        <div class="form-group">
-            <label>Niveau et Filière :</label>
-            <select id="classe-input">
-                <option value="1AS (TC Lettres)">1AS (TC Lettres)</option>
-                <option value="1AS (TC Sciences)">1AS (TC Sciences)</option>
-                <option value="2AS (Lettres/Philo)">2AS (Lettres/Philo)</option>
-                <option value="2AS (Scientifique)">2AS (Scientifique)</option>
-                <option value="2AS (Langues)">2AS (Langues)</option>
-                <option value="3AS (Lettres/Philo)">3AS (Lettres/Philo)</option>
-                <option value="3AS (Scientifique)">3AS (Scientifique)</option>
-                <option value="3AS (Langues)">3AS (Langues)</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label>Activité :</label>
-            <select id="activite-input">
-                <option value="Compréhension de l'écrit">Compréhension de l'écrit</option>
-                <option value="Compréhension de l'oral">Compréhension de l'oral</option>
-                <option value="Production écrite">Production écrite</option>
-                <option value="Production de l'oral">Production de l'oral</option>
-                <option value="Compte rendu">Compte rendu</option>
-                <option value="Points de langue">Points de langue</option>
-                <option value="Évaluation / Devoir">Évaluation / Devoir</option>
-            </select>
-        </div>
-        
-        <button class="btn btn-add" id="btn-add">+ Ajouter au cahier</button>
-        <button class="btn btn-print" id="btn-print">🖨️ Imprimer / PDF</button>
-        <button class="btn btn-clear" id="btn-clear">🗑️ Vider le cahier</button>
-    </div>
-
-    <!-- Feuille A4 -->
-    <div class="main-content">
-        <div class="a4-sheet">
-            <div class="header-officiel">
-                <h3>République Algérienne Démocratique et Populaire</h3>
-                <p>Ministère de l'Éducation Nationale</p>
-                <h2>CAHIER JOURNAL</h2>
-            </div>
-            
-            <div class="info-box">
-                <div>Enseignant : <strong>Noureddine Guelmine</strong></div>
-                <div>Établissement : <strong>Lycée Chérif El-Idrissi - Hammam Dalaa</strong></div>
-                <div id="display-date" style="text-transform: capitalize;"></div>
-            </div>
-            
-            <table id="journal-table">
-                <thead>
-                    <tr>
-                        <th>Horaire</th>
-                        <th>Classe</th>
-                        <th>Activité / Support</th>
-                        <th>Objectifs d'apprentissage</th>
-                        <th>Observations</th>
-                        <th class="delete-col">X</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Les lignes s'afficheront ici -->
-                </tbody>
-            </table>
+    <!-- ÉCRAN DE SÉCURITÉ -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>Cahier Journal</h2>
+            <p style="color:var(--muted); font-size:14px; margin-bottom: 20px;">Accès sécurisé pour M. Noureddine</p>
+            <input type="password" id="password-input" placeholder="Code d'accès (1234)">
+            <button onclick="checkPassword()">Déverrouiller</button>
+            <div id="login-error">Code incorrect.</div>
         </div>
     </div>
 
-    <!-- Script JavaScript -->
+    <!-- APPLICATION COMPLÈTE -->
+    <div id="app-content">
+        <!-- BARRE DE NAVIGATION HAUTE -->
+        <header class="toolbar no-print">
+            <div class="toolbar-top">
+                <h1>Cahier Journal — FLE</h1>
+                <div>
+                    <button class="btn btn-print" onclick="window.print()">🖨️ Imprimer la page visible</button>
+                    <button class="btn" onclick="clearData()" style="color:red;">🗑️ Réinitialiser</button>
+                </div>
+            </div>
+            <nav class="tabs" id="nav-tabs">
+                <button class="tab active" onclick="showPage(0)">Garde</button>
+                <button class="tab" onclick="showPage(1)">Infos</button>
+                <button class="tab" onclick="showPage(2)">Emploi du temps</button>
+                <button class="tab" onclick="showPage(3)">Préparation (Fiche)</button>
+                <button class="tab" onclick="showPage(4)">Cahier de textes</button>
+                <button class="tab" onclick="showPage(5)">Liste des élèves</button>
+                <button class="tab" onclick="showPage(6)">Évaluation continue</button>
+            </nav>
+        </header>
+
+        <main id="cahier">
+            <!-- PAGE 0 : GARDE -->
+            <section class="sheet" id="page-0">
+                <div class="head" style="margin-top: 10mm;">
+                    <p class="head__eyebrow">République Algérienne Démocratique et Populaire</p>
+                    <p class="head__eyebrow">Ministère de l'Éducation Nationale</p>
+                </div>
+                <div class="cover-content">
+                    <h1>Cahier Journal</h1>
+                    <div class="cover-info">Enseignant : Noureddine Guelmine</div>
+                    <div class="cover-info">Établissement : Lycée Chérif El-Idrissi</div>
+                    <div class="cover-info">Matière : Langue Française (FLE)</div>
+                    <div class="cover-info" style="margin-top: 20px; color: var(--gold);">Année Scolaire : <input type="text" id="annee-scolaire" class="line" style="width: 150px; text-align: center; font-size: 16pt; font-weight: bold;" value="2026 - 2027"></div>
+                </div>
+            </section>
+
+            <!-- PAGE 1 : INFOS -->
+            <section class="sheet hidden" id="page-1">
+                <header class="head">
+                    <p class="head__eyebrow">Fiche d'identité de l'enseignant</p>
+                    <h2>Informations personnelles & professionnelles</h2>
+                </header>
+                <div style="display:flex; flex-direction:column; gap: 15px; margin-top: 20px;">
+                    <div style="display:flex; gap: 10px;"><strong style="color:var(--v800);">Nom et Prénom :</strong> <input type="text" class="line" value="Guelmine Noureddine" readonly></div>
+                    <div style="display:flex; gap: 10px;"><strong style="color:var(--v800);">Établissement :</strong> <input type="text" class="line" value="Lycée Chérif El-Idrissi - Hammam Dalaa" readonly></div>
+                    <div style="display:flex; gap: 10px;"><strong style="color:var(--v800);">Classes assignées :</strong> <input type="text" class="line" id="info-classes" placeholder="Ex: 1AS, 2AS..."></div>
+                    <div style="display:flex; gap: 10px;"><strong style="color:var(--v800);">Inspecteur de la matière :</strong> <input type="text" class="line" id="info-insp" placeholder="..."></div>
+                    <div style="display:flex; gap: 10px;"><strong style="color:var(--v800);">Directeur(trice) :</strong> <input type="text" class="line" id="info-dir" placeholder="..."></div>
+                </div>
+            </section>
+
+            <!-- PAGE 2 : EMPLOI DU TEMPS -->
+            <section class="sheet hidden" id="page-2">
+                <header class="head">
+                    <p class="head__eyebrow">Organisation hebdomadaire</p>
+                    <h2>Emploi du temps</h2>
+                </header>
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th style="width:15%">Jours \ Heures</th>
+                            <th style="width:21%">8h00 - 10h00</th>
+                            <th style="width:21%">10h00 - 12h00</th>
+                            <th style="width:21%">13h00 - 15h00</th>
+                            <th style="width:21%">15h00 - 17h00</th>
+                        </tr>
+                    </thead>
+                    <tbody id="edt-body">
+                        <!-- Généré par JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- PAGE 3 : FICHE DE PRÉPARATION (LE CAHIER JOURNAL QUOTIDIEN) -->
+            <section class="sheet hidden" id="page-3">
+                <header class="head">
+                    <p class="head__eyebrow">Déroulement de la journée</p>
+                    <h2>Fiche de préparation</h2>
+                </header>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <div style="width:45%;"><strong style="color:var(--v800);">Date :</strong> <input type="date" id="fiche-date" class="line"></div>
+                </div>
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th style="width:12%">Horaire</th>
+                            <th style="width:15%">Classe</th>
+                            <th style="width:25%">Activité / Projet</th>
+                            <th style="width:33%">Objectifs</th>
+                            <th style="width:15%">Obs.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="journal-body">
+                        <!-- Généré par JS (6 lignes) -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- PAGE 4 : CAHIER DE TEXTES (DEVOIRS) -->
+            <section class="sheet hidden" id="page-4">
+                <header class="head">
+                    <p class="head__eyebrow">Suivi des devoirs</p>
+                    <h2>Cahier de textes</h2>
+                </header>
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th style="width:15%">Date</th>
+                            <th style="width:15%">Classe</th>
+                            <th style="width:40%">Contenu (Leçon)</th>
+                            <th style="width:30%">Travail demandé</th>
+                        </tr>
+                    </thead>
+                    <tbody id="textes-body">
+                        <!-- Généré par JS (10 lignes) -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- PAGE 5 : LISTE DES ÉLÈVES -->
+            <section class="sheet hidden" id="page-5">
+                <header class="head">
+                    <p class="head__eyebrow">Gestion de classe</p>
+                    <h2>Liste des élèves</h2>
+                </header>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <strong style="color:var(--v800);">Classe :</strong> <input type="text" class="line" style="width:200px" id="liste-classe" placeholder="Ex: 1AS TC Lettres">
+                </div>
+                <table class="tbl" style="margin-top:0;">
+                    <thead>
+                        <tr>
+                            <th style="width:10%">N°</th>
+                            <th style="width:50%">Nom et Prénom</th>
+                            <th style="width:20%">Date naiss.</th>
+                            <th style="width:20%">Obs.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="students-body">
+                        <!-- Généré par JS (30 lignes) -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- PAGE 6 : ÉVALUATION CONTINUE -->
+            <section class="sheet hidden" id="page-6">
+                <header class="head">
+                    <p class="head__eyebrow">Suivi des notes</p>
+                    <h2>Évaluation continue</h2>
+                </header>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <strong style="color:var(--v800);">Classe :</strong> <input type="text" class="line" style="width:150px" id="eval-classe" placeholder="Classe">
+                    <strong style="color:var(--v800);">Trimestre :</strong> <input type="text" class="line" style="width:150px" id="eval-trim" placeholder="Trimestre">
+                </div>
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th style="width:35%">Nom de l'élève</th>
+                            <th style="width:13%">Partic.</th>
+                            <th style="width:13%">Devoir</th>
+                            <th style="width:13%">Interro.</th>
+                            <th style="width:13%">Compo.</th>
+                            <th style="width:13%">Moyenne</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eval-body">
+                        <!-- Généré par JS (25 lignes) -->
+                    </tbody>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
     <script>
-        const datePicker = document.getElementById('date-picker');
-        const displayDate = document.getElementById('display-date');
-        const tbody = document.querySelector('#journal-table tbody');
-
-        // 1. Gestion de la date
-        function updateDateDisplay() {
-            if (!datePicker.value) return;
-            const dateObj = new Date(datePicker.value);
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            displayDate.textContent = dateObj.toLocaleDateString('fr-FR', options);
-            saveData();
-        }
-
-        datePicker.addEventListener('change', updateDateDisplay);
-
-        // Initialisation de la date au chargement
-        const savedDate = localStorage.getItem('cahier_journal_date_v3');
-        if (savedDate) {
-            datePicker.value = savedDate;
-        } else {
-            datePicker.valueAsDate = new Date();
-        }
-        updateDateDisplay();
-
-        // 2. Ajouter une séance
-        document.getElementById('btn-add').addEventListener('click', () => {
-            const horaire = document.getElementById('horaire-input').value;
-            const classe = document.getElementById('classe-input').value;
-            const activite = document.getElementById('activite-input').value;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td contenteditable="true">${horaire}</td>
-                <td contenteditable="true"><strong>${classe}</strong><br><br>Projet :<br>Séquence :</td>
-                <td contenteditable="true"><u>${activite}</u><br><br>Support :</td>
-                <td contenteditable="true">- </td>
-                <td contenteditable="true"></td>
-                <td class="delete-col"><span class="delete-btn" title="Supprimer cette séance">❌</span></td>
-            `;
-            tbody.appendChild(tr);
-            addCellListeners(tr);
-            saveData();
-        });
-
-        // 3. Supprimer une séance
-        tbody.addEventListener('click', (e) => {
-            if (e.target.classList.contains('delete-btn')) {
-                if (confirm('Voulez-vous vraiment supprimer cette séance de votre cahier ?')) {
-                    e.target.closest('tr').remove();
-                    saveData();
-                }
+        // --- 1. SÉCURITÉ ---
+        const MOT_DE_PASSE = "1234";
+        function checkPassword() {
+            if (document.getElementById('password-input').value === MOT_DE_PASSE) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                sessionStorage.setItem('cahier_auth_full', 'true');
+            } else {
+                document.getElementById('login-error').style.display = 'block';
             }
-        });
+        }
+        if (sessionStorage.getItem('cahier_auth_full') === 'true') {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+        }
+        document.getElementById('password-input').addEventListener('keypress', e => { if (e.key === 'Enter') checkPassword(); });
 
-        // 4. Vider tout le cahier
-        document.getElementById('btn-clear').addEventListener('click', () => {
-            if (confirm('Attention, vous allez effacer toutes les séances de cette page. Continuer ?')) {
-                tbody.innerHTML = '';
-                saveData();
-            }
-        });
-
-        // 5. Impression et Export PDF
-        document.getElementById('btn-print').addEventListener('click', () => {
-            window.print();
-        });
-
-        // 6. Sauvegarde locale (LocalStorage)
-        function addCellListeners(row) {
-            const cells = row.querySelectorAll('[contenteditable="true"]');
-            cells.forEach(cell => {
-                cell.addEventListener('input', saveData); // Sauvegarde à chaque touche tapée
-                cell.addEventListener('blur', saveData);  // Sécurité supplémentaire quand on quitte la cellule
+        // --- 2. NAVIGATION (TABS) ---
+        function showPage(n) {
+            document.querySelectorAll('.sheet').forEach((sheet, idx) => {
+                sheet.classList.toggle('hidden', idx !== n);
             });
+            document.querySelectorAll('.tab').forEach((tab, idx) => {
+                tab.classList.toggle('active', idx === n);
+            });
+            // Fixer un bug d'impression de page unique : cacher les autres pages lors du mode print
+            window.scrollTo(0,0);
         }
 
-        function saveData() {
-            localStorage.setItem('cahier_journal_data_v3', tbody.innerHTML);
-            localStorage.setItem('cahier_journal_date_v3', datePicker.value);
-        }
-
-        // 7. Chargement des données au démarrage
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedData = localStorage.getItem('cahier_journal_data_v3');
-            if (savedData) {
-                tbody.innerHTML = savedData;
-                // Réattacher les événements de sauvegarde sur les cellules chargées depuis la mémoire
-                tbody.querySelectorAll('tr').forEach(tr => addCellListeners(tr));
+        // --- 3. GÉNÉRATION DES TABLEAUX ---
+        function createRows(parentId, rowCount, htmlTemplate) {
+            const tbody = document.getElementById(parentId);
+            if (!tbody) return;
+            for (let i = 1; i <= rowCount; i++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = htmlTemplate(i);
+                tbody.appendChild(tr);
             }
+        }
+
+        // Table Emploi du temps (Page 2)
+        const DAYS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi'];
+        const edtBody = document.getElementById('edt-body');
+        DAYS.forEach(day => {
+            let tr = `<tr><td style="font-weight:bold; text-align:center; background:var(--v50);">${day}</td>`;
+            for(let i=0; i<4; i++) tr += `<td><textarea class="area"></textarea></td>`;
+            tr += `</tr>`;
+            edtBody.innerHTML += tr;
         });
+
+        // Table Cahier Journal Quotidien (Page 3)
+        createRows('journal-body', 6, (i) => `
+            <td><input type="text" class="line" style="text-align:center; font-weight:bold;"></td>
+            <td><input type="text" class="line" style="font-weight:bold; color:var(--v800);"></td>
+            <td><textarea class="area"></textarea></td>
+            <td><textarea class="area"></textarea></td>
+            <td><textarea class="area"></textarea></td>
+        `);
+
+        // Table Cahier de Textes (Page 4)
+        createRows('textes-body', 10, (i) => `
+            <td><input type="text" class="line" style="text-align:center;"></td>
+            <td><input type="text" class="line" style="text-align:center;"></td>
+            <td><textarea class="area"></textarea></td>
+            <td><textarea class="area"></textarea></td>
+        `);
+
+        // Table Élèves (Page 5)
+        createRows('students-body', 30, (i) => `
+            <td style="text-align:center; font-weight:bold; color:var(--v700);">${i}</td>
+            <td><input type="text" class="line"></td>
+            <td><input type="text" class="line" style="text-align:center;"></td>
+            <td><input type="text" class="line"></td>
+        `);
+
+        // Table Évaluation (Page 6)
+        createRows('eval-body', 25, (i) => `
+            <td><input type="text" class="line"></td>
+            <td><input type="text" class="line" style="text-align:center;"></td>
+            <td><input type="text" class="line" style="text-align:center;"></td>
+            <td><input type="text" class="line" style="text-align:center;"></td>
+            <td><input type="text" class="line" style="text-align:center;"></td>
+            <td><input type="text" class="line" style="text-align:center; font-weight:bold; color:var(--v700);"></td>
+        `);
+
+        // --- 4. SAUVEGARDE AUTOMATIQUE (LocalStorage) ---
+        const DB_KEY = 'cahier_journal_pro_ng';
+
+        function saveAllData() {
+            const inputs = document.querySelectorAll('input.line, textarea.area');
+            const data = {};
+            inputs.forEach((el, index) => {
+                // Créer un identifiant unique basé sur la position si l'ID n'existe pas
+                const id = el.id || `input_${index}`;
+                data[id] = el.value;
+            });
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+        }
+
+        function loadAllData() {
+            const saved = localStorage.getItem(DB_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                const inputs = document.querySelectorAll('input.line, textarea.area');
+                inputs.forEach((el, index) => {
+                    const id = el.id || `input_${index}`;
+                    if (data[id] !== undefined) el.value = data[id];
+                    // Ajuster la hauteur des textareas
+                    if(el.tagName === 'TEXTAREA') {
+                        el.style.height = "auto";
+                        el.style.height = (el.scrollHeight) + "px";
+                    }
+                });
+            }
+        }
+
+        // Ajouter les événements de sauvegarde
+        document.querySelectorAll('input.line, textarea.area').forEach(el => {
+            el.addEventListener('input', () => {
+                if(el.tagName === 'TEXTAREA') {
+                    el.style.height = "auto";
+                    el.style.height = (el.scrollHeight) + "px";
+                }
+                saveAllData();
+            });
+        });
+
+        function clearData() {
+            if(confirm("Attention, cela va effacer toutes les données de toutes les pages. Êtes-vous sûr ?")) {
+                localStorage.removeItem(DB_KEY);
+                window.location.reload();
+            }
+        }
+
+        // Charger au démarrage
+        window.addEventListener('DOMContentLoaded', loadAllData);
     </script>
 </body>
 </html>
